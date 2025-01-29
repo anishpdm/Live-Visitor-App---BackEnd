@@ -116,4 +116,30 @@ const viewLogs = async (req, res) => {
   res.json(logs);
 };
 
-module.exports = { loginAdmin, addSecurity, viewAllSecurity, removeSecurity, viewLogs };
+
+// Search Security
+const searchSecurityByName = async (req, res) => {
+  try {
+    const { name } = req.body; // Get the name from request body
+
+    if (!name) {
+      return res.status(400).json({ message: 'Name field is required.' });
+    }
+
+    // Perform a case-insensitive search using a regex pattern
+    const securityGuards = await Security.find({
+      name: { $regex: name, $options: 'i' }
+    });
+
+    if (securityGuards.length === 0) {
+      return res.status(404).json({ message: 'No security guards found.' });
+    }
+
+    res.status(200).json(securityGuards);
+  } catch (error) {
+    console.error('Error searching security guards:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+module.exports = { loginAdmin, addSecurity, viewAllSecurity, removeSecurity, viewLogs,searchSecurityByName };
