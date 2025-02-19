@@ -43,57 +43,49 @@ async function loginAdmin(req, res) {
 // Add Security Guard API
 const addSecurity = async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      phone_no,
-      employee_code,
-      address,
-      date_of_birth,
-      password,
-      created_by,
-    } = req.body;
+      const { name, email, phone_no, employee_code, address, date_of_birth, password, created_by, updated_by } = req.body;
 
-    // Check if required fields are provided
-    if (!name || !email || !phone_no || !employee_code || !address || !date_of_birth || !password || !created_by) {
-      return res.status(400).json({ message: 'All fields are required.' });
-    }
+      // Validate if required fields are present
+      if (!name || !email || !phone_no || !employee_code || !address || !date_of_birth || !password || !created_by || !updated_by) {
+          return res.status(400).json({ error: "All fields are required." });
+      }
 
-    // Check if security guard with the same email or employee_code already exists
-    const existingSecurity = await Security.findOne({
-      $or: [{ email }, { employee_code }],
-    });
+      // Ensure `created_by` and `updated_by` are valid ObjectIds
+      if (!mongoose.Types.ObjectId.isValid(created_by) || !mongoose.Types.ObjectId.isValid(updated_by)) {
+          return res.status(400).json({ error: "Invalid admin ID format." });
+      }
 
-    if (existingSecurity) {
-      return res.status(409).json({ message: 'Email or Employee Code already exists.' });
-    }
+      // Check if email or employee_code already exists
+      const existingSecurity = await Security.findOne({ 
+          $or: [{ email }, { employee_code }]
+      });
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+      if (existingSecurity) {
+          return res.status(409).json({ error: "Email or Employee Code already exists." });
+      }
 
-    // Create a new Security Guard record
-    const newSecurityGuard = new Security({
-      name,
-      email,
-      phone_no,
-      employee_code,
-      address,
-      date_of_birth,
-      password: hashedPassword,
-      created_by,
-      updated_by: created_by,
-    });
+      // Create new Security guard
+      const newSecurity = new Security({
+          name,
+          email,
+          phone_no,
+          employee_code,
+          address,
+          date_of_birth,
+          password,
+          created_by,
+          updated_by
+      });
 
-    // Save the record
-    const savedSecurity = await newSecurityGuard.save();
+      await newSecurity.save();
+      res.status(201).json({ message: 'Security guard added successfully', security: newSecurity });
 
-    res.status(201).json({
-      message: 'Security guard added successfully.',
-      data: savedSecurity,
-    });
   } catch (error) {
-    console.error('Error adding security guard:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+      if (error.code === 11000) {
+          return res.status(409).json({ error: "Duplicate entry detected. Email or Employee Code already exists." });
+      }
+      console.error('Error adding security guard:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
