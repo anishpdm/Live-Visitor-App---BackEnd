@@ -61,6 +61,9 @@ const addSecurity = async (req, res) => {
           $or: [{ email }, { employee_code }]
       });
 
+      console.log("Existing...")
+      console.log(existingSecurity)
+
       if (existingSecurity) {
           return res.status(409).json({ error: "Email or Employee Code already exists." });
       }
