@@ -78,6 +78,8 @@ const addSecurity = async (req, res) => {
           updated_by
       });
 
+      console.log(newSecurity)
+
       await newSecurity.save();
       res.status(201).json({ message: 'Security guard added successfully', security: newSecurity });
 
