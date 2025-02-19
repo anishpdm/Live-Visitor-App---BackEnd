@@ -30,7 +30,7 @@ async function loginAdmin(req, res) {
       }
 
       // Generate a token (if applicable)
-      const token = jwt.sign({ id: admin._id }, "logixspace", { expiresIn: '1h' });
+      const token = jwt.sign({ id: admin._id }, "logixspace", { expiresIn: '12h' });
 
       return res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
