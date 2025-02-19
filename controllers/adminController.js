@@ -58,11 +58,17 @@ const addSecurity = async (req, res) => {
 
       // Check if email or employee_code already exists
       const existingSecurity = await Security.findOne({ 
-          $or: [{ email }, { employee_code }]
-      });
+        $or: [{ email: { $exists: true, $eq: email } }, { employee_code: { $exists: true, $eq: employee_code } }]
+    });
+    
 
       console.log("Existing...")
       console.log(existingSecurity)
+
+      console.log("Received Data:", req.body);
+console.log("Checking for existing security with Email:", email, "and Employee Code:", employee_code);
+console.log("Existing Security Found:", existingSecurity);
+
 
       if (existingSecurity!=null) {
           return res.status(409).json({ error: "Email or Employee Code already exists." });
@@ -81,7 +87,7 @@ const addSecurity = async (req, res) => {
           updated_by
       });
 
-      console.log(newSecurity)
+     // console.log(newSecurity)
 
       await newSecurity.save();
       res.status(201).json({ message: 'Security guard added successfully', security: newSecurity });
