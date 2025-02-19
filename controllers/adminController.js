@@ -3,6 +3,7 @@ const Security = require('../models/Security');
 const DailyLog = require('../models/DailyLog');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 
 
 async function loginAdmin(req, res) {
